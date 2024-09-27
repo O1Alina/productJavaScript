@@ -6,6 +6,8 @@ $products = dbProductConnection();?>
     <div class="row">
         <div class="col-6 mt-5">
             <form class="productForm">
+                <div class="success" style="color:green;"></div>
+                <div class="error" style="color:red;"></div>
                 <input type="hidden" name="action" value="productCreated">     
                 Product name : <input type="text" name="productName"> <br><br>
                 Product category: <input type="text" name="category"> <br><br>
@@ -108,8 +110,29 @@ $products = dbProductConnection();?>
             return response.json();
         })
         .then(data => {
-           console.log(data.message);
-           form.reset();
+            var error = data.error;
+            if( error ){
+                var html = '';
+                var productNameError = data.productName;
+                var categoryError = data.category;
+                var costError = data.cost;
+                if( typeof(productNameError) != "undefined" ){
+                    html += productNameError
+                }
+                if( typeof(categoryError) != 'undefined' ){
+                    html += '<br>' + categoryError + '<br>';
+                }
+                if( typeof(costError) != 'undefined' ){
+                    html += '<br>' + costError;
+                }
+                document.querySelector('.error').innerHTML = html
+            } else{
+                document.querySelector('.success').innerHTML = data.message;
+                console.log(data.message);
+
+                form.reset();
+            }
+           
         })
         .catch(error => {
             console.log('An error occurred');

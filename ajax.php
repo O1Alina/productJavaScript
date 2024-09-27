@@ -11,17 +11,17 @@ function productCreated(){
         if( empty($productName) ){
             $error = true;
             $response['error'] = true;
-            $response['productName'] = 'The field is required!';
+            $response['productName'] = 'Product name is required!';
         }
-        elseif( empty($productCategory) ){
+        if( empty($productCategory) ){
             $error = true;
             $response['error'] = true;
-            $response['category'] = 'The field is required!';
+            $response['category'] = 'Product category is required!';
         }
-        else{
+        if( empty($productPrice) ){
             $error = true;
             $response['error'] = true;
-            $response['cost'] = 'The field is required!';
+            $response['cost'] = 'Product price is required!';
         }
 
         if($error){
@@ -42,7 +42,7 @@ function productCreated(){
         $stmt->close();
 
         echo json_encode([
-            'message' => 'Success',
+            'message' => 'Successfully added.',
             'status'  => true,
             'error'   => false,
         ]);
