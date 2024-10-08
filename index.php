@@ -20,49 +20,46 @@ $products = dbProductConnection();?>
         </div>
         <div class="col-6 mt-5">
         <!-- Displays a list of products retrieved from the database using a function dbProductConnection() -->
-            <table class="table border">
-                <tr>
-                    <th class="border">Product</th>
-                    <th class="border">Price</th>
-                    <th class="border">Add to cart</th>
-                    <th class="border">Quanties</th>
-                </tr>
-                <form method="post" action="add_to_cart.php" class="product_JS">
-
-                <input type="hidden" name="product_id" value="">
-                <input type="hidden" name="product_quantity" value="">
-                    <div class="productList__JS">
+            <table class="table border productList__JS ">
+                <thead>
+                    <tr>
+                        <th class="border">Product</th>
+                        <th class="border">Price</th>
+                        <th class="border">Add to cart</th>
+                        <th class="border">Quanties</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                    if (!empty($products)) : 
+                        $count = 1;?>
+                        <?php foreach ($products as $product) : ?>
+                        <tr class="productListData_JS">
+                            <td class="border productName_col"><?php echo $product['product_name']; ?></td>
+                            <td class="border productPrice_col"><?php echo $product['product_price']; ?></td>
+                            <td class="border">
+                                <a href="#" 
+                                    class="btn btn-primary add_to_cart_JS" 
+                                    data-product="<?php echo $product['product_id'];?>"
+                                    data-product-name="<?php echo $product['product_name']; ?>"
+                                    data-product-price="<?php echo $product['product_price']; ?>"
+                                    data-product-click="false"
+                                    data-product-count="<?php echo $count;?>"
+                                    data-quantity="0">
+                                    Add to cart
+                                </a>
+                            </td>
+                            <td class="border productQuantity_col" data-cart=""></td>
+                        </tr>
                         <?php 
-                        if (!empty($products)) : 
-                            $count = 1;?>
-                            <?php foreach ($products as $product) : ?>
-                            <tr class="productListData_JS">
-                                <td class="border productName_col"><?php echo $product['product_name']; ?></td>
-                                <td class="border productPrice_col"><?php echo $product['product_price']; ?></td>
-                                <td class="border">
-                                    <a href="#" 
-                                        class="btn btn-primary add_to_cart_JS" 
-                                        data-product="<?php echo $product['product_id'];?>"
-                                        data-product-name="<?php echo $product['product_name']; ?>"
-                                        data-product-price="<?php echo $product['product_price']; ?>"
-                                        data-product-click="false"
-                                        data-product-count="<?php echo $count;?>"
-                                        data-quantity="0">
-                                        Add to cart
-                                    </a>
-                                </td>
-                                <td class="border productQuantity_col" data-cart=""></td>
-                            </tr>
-                            <?php 
-                            $count++;
-                            endforeach; ?>
-                        <?php else : ?>
-                            <tr>
-                                <td colspan="3" class="border">No products available.</td>
-                            </tr>
-                        <?php endif; ?>
-                    </div>
-                </form>
+                        $count++;
+                        endforeach; ?>
+                    <?php else : ?>
+                        <tr>
+                            <td colspan="3" class="border">No products available.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
             </table>
             <a href="#" class="btn btn-primary add_to_cart_all">
                 Add To Cart All
@@ -144,7 +141,25 @@ $products = dbProductConnection();?>
                         console.log(value.product_id);
                         console.log(value.product_name);
                         console.log(value.product_price);
+                        productHtml += '<tr>'
+                        productHtml += '<td>' +value.product_name+ '</td>'
+                        productHtml += '<td>' +value.product_price+ '</td>'
+                        productHtml += '<td><a href="#" ' +
+                                        'class="btn btn-primary add_to_cart_JS" ' +
+                                        'data-product="' + value.product_id + '" ' +
+                                        'data-product-name="' + value.product_name + '" ' +
+                                        'data-product-price="' + value.product_price + '" ' +
+                                        'data-product-click="false" ' +
+                                        'data-product-count="' + '<?php echo $count; ?>' + '" ' +
+                                        'data-quantity="0">' +
+                                        'Add to cart' +
+                                        '</a></td>';
+                        productHtml += '<td> </td>'
+                        productHtml += '</tr>'
                     });
+
+                    document.querySelector('.productList__JS tbody').innerHTML = productHtml;
+                        addToCart();
                     document.querySelector('.success').innerHTML = data.message;
                     console.log(data.message);
 
@@ -157,73 +172,78 @@ $products = dbProductConnection();?>
                 console.log('An error occurred');
             });
         }
-        //Handle form submission and "Add to cart" actions dynamically using JavaScript.
-        var count = 0;
-        document.querySelectorAll('a.add_to_cart_JS').forEach(function(element){
-            element.addEventListener('click',(event) => {
-                count++;
-                event.preventDefault();
-                var productID = event.currentTarget.getAttribute('data-product');
-                var productName = event.currentTarget.getAttribute('data-product-name');
-                var productPrice = event.currentTarget.getAttribute('data-product-price');
-                var productQuantity = event.currentTarget.getAttribute('data-quantity');
-                var productCount = event.currentTarget.getAttribute('data-product-count');
-                document.querySelector('input[name="product_id"]').value =productID;
-                document.querySelector('input[name="product_quantity"]').value =productQuantity;
-                var productClick = event.currentTarget.getAttribute('data-product-click');
-                productQuantity++;
-                var totalPrice = productPrice*productQuantity;
-                var html  = '';
-                html += '<tr id=alina--'+productCount+'--'+productID+'>';
-                if( productClick == 'false' ){
-                    html += '<td class="border" >' +productName+ '</td>';
-                    html += '<td class="border" >' +productPrice+'</td>';
-                    html += '<td class="border" >' +productQuantity+'</td>';
-                    html += '<td class="border totalPrice" >' +totalPrice+'</td>';
-                    document.querySelector('table.product-info tbody').insertAdjacentHTML('beforeend',html)   
-                }
-                html += '</tr>';
-                if( productClick == 'true' ){
-                    html += '<td class="border" >'+productName+'</td>';
-                    html += '<td class="border" >'+productPrice+'</td>';
-                    html += '<td class="border" >'+productQuantity+'</td>';
-                    html += '<td class="border totalPrice" >'+totalPrice+'</td>';
-                    document.getElementById('alina--'+productCount+'--'+productID).innerHTML = html;
-                }
+        function addToCart(){
+            document.querySelectorAll('a.add_to_cart_JS').forEach(function(element){
+                element.addEventListener('click',(event) => {
+                    event.preventDefault();
+                    var productID = event.currentTarget.getAttribute('data-product');
+                    var productName = event.currentTarget.getAttribute('data-product-name');
+                    var productPrice = event.currentTarget.getAttribute('data-product-price');
+                    var productQuantity = event.currentTarget.getAttribute('data-quantity');
+                    var productCount = event.currentTarget.getAttribute('data-product-count');
+                    // document.querySelector('input[name="product_id"]').value =productID;
+                    // document.querySelector('input[name="product_quantity"]').value =productQuantity;
+                    var productClick = event.currentTarget.getAttribute('data-product-click');
+                    productQuantity++;
+                    var totalPrice = productPrice*productQuantity;
+                    var html  = '';
+                    console.log(productCount);
+                    console.log(productID);
+                    html += '<tr id=alina--'+productCount+'--'+productID+'>';
+                    if( productClick == 'false' ){
+                        html += '<td class="border" >' +productName+ '</td>';
+                        html += '<td class="border" >' +productPrice+'</td>';
+                        html += '<td class="border" >' +productQuantity+'</td>';
+                        html += '<td class="border totalPrice" >' +totalPrice+'</td>';
+                        document.querySelector('table.product-info tbody').insertAdjacentHTML('beforeend',html)   
+                    }
+                    html += '</tr>';
+                    if( productClick == 'true' ){
+                        html += '<td class="border" >'+productName+'</td>';
+                        html += '<td class="border" >'+productPrice+'</td>';
+                        html += '<td class="border" >'+productQuantity+'</td>';
+                        html += '<td class="border totalPrice" >'+totalPrice+'</td>';
+                        document.getElementById('alina--'+productCount+'--'+productID).innerHTML = html;
+                    }
+                    
+                    element.setAttribute('data-product-click',true);
+                    event.currentTarget.parentElement.nextElementSibling.innerHTML = productQuantity;
+                    var sum = 0;
+                    var grandTotal = document.querySelectorAll('.totalPrice');
+                    grandTotal.forEach((gTotal) => {
+                        sum += parseFloat(gTotal.innerText);
+                    });
+                    document.querySelector('table.product-info tfoot').innerHTML = '<tr><td colspan="3">Grand Total</td><td>'+sum+'</td></tr>';
                 
-                element.setAttribute('data-product-click',true);
-                event.currentTarget.parentElement.nextElementSibling.innerHTML = productQuantity;
-                var sum = 0;
-                var grandTotal = document.querySelectorAll('.totalPrice');
-                grandTotal.forEach((gTotal) => {
-                    sum += parseFloat(gTotal.innerText);
+                    element.setAttribute('data-quantity', productQuantity);
                 });
-                document.querySelector('table.product-info tfoot').innerHTML = '<tr><td colspan="3">Grand Total</td><td>'+sum+'</td></tr>';
-            
-                element.setAttribute('data-quantity', productQuantity);
             });
-        });
+        }
+         addToCart();
      
-        document.querySelector('.add_to_cart_all').addEventListener('click',() => {
-            var sum1 = 0;
-            var html  = '';
-            document.querySelectorAll('.productListData_JS').forEach( (el) => {
-                html += '<tr>';
-                html += '<td class="border" >' +el.querySelector('.productName_col').innerText+ '</td>';
-                html += '<td class="border" >' +el.querySelector('.productPrice_col').innerText+'</td>';
-                html += '<td class="border" >1</td>';
-                html += '<td class="border totalPrice" >'+el.querySelector('.productPrice_col').innerText+'</td>';
-                html += '</tr>';
+        function addToCartAll(){
+            document.querySelector('.add_to_cart_all').addEventListener('click',() => {
+                var sum1 = 0;
+                var html  = '';
+                document.querySelectorAll('.productListData_JS').forEach( (el) => {
+                    html += '<tr>';
+                    html += '<td class="border" >' +el.querySelector('.productName_col').innerText+ '</td>';
+                    html += '<td class="border" >' +el.querySelector('.productPrice_col').innerText+'</td>';
+                    html += '<td class="border" >1</td>';
+                    html += '<td class="border totalPrice" >'+el.querySelector('.productPrice_col').innerText+'</td>';
+                    html += '</tr>';
+                });
+                document.querySelector('table.product-info tbody').innerHTML = html;  
+                
+                var grandTotal = document.querySelectorAll('.totalPrice');  
+                grandTotal.forEach((gTotal) => {
+                    console.log(gTotal);
+                    sum1 += parseFloat(gTotal.innerText);
+                });
+                document.querySelector('table.product-info tfoot').innerHTML = '<tr><td colspan="3">Grand Total</td><td>'+sum1+'</td></tr>';
             });
-            document.querySelector('table.product-info tbody').innerHTML = html;  
-               
-            var grandTotal = document.querySelectorAll('.totalPrice');  
-            grandTotal.forEach((gTotal) => {
-                console.log(gTotal);
-                sum1 += parseFloat(gTotal.innerText);
-            });
-            document.querySelector('table.product-info tfoot').innerHTML = '<tr><td colspan="3">Grand Total</td><td>'+sum1+'</td></tr>';
-        });
+        }
+        addToCartAll();
     </script>
 </body>
 </html>
