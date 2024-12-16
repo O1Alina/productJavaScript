@@ -42,6 +42,7 @@ function allProductAddToCart() {
         $updatedCartRow = $resultCart->fetch_assoc();
 
         $productlist[] = [
+            'id'            => $updatedCartRow['id'],
             'product_name'  => $row['product_name'],
             'product_price' => $row['product_price'],
             'quantity'      => $updatedCartRow['quantity'],
@@ -51,20 +52,30 @@ function allProductAddToCart() {
     }
 
     $html = '';
+    $totalPrice = 0;
     if (!empty($productlist)) {
         foreach ($productlist as $cart) {
+            $totalPrice    += $cart['total_price'];
             $html .= '<tr>';
             $html .= '<td class="border">' . htmlspecialchars($cart['product_name']) . '</td>';
             $html .= '<td class="border">' . htmlspecialchars($cart['product_price']) . '</td>';
             $html .= '<td class="border">' . htmlspecialchars($cart['quantity']) . '</td>';
             $html .= '<td class="border totalPrice">' . htmlspecialchars($cart['total_price']) . '</td>';
-             $html .= '<td><a href="#" data-product="'.$cart['product_id'].'" class="remove-item btn btn-danger">Delete</a></td>';
+             $html .= '<td>
+                        <a href="#" data-product="'.$cart['product_id'].'" class="remove-item btn btn-danger" onclick="return confirm(\'Are you sure you want to delete this item?\');">Delete</a>
+                        <a href="javascript:void(0);" 
+                                            data-cart-id="'.$cart['id'].'" 
+                                            data-quantity="'.$cart['quantity'].'" 
+                                            data-product-price="'.$cart['product_price'].'" 
+                                            class="edit-item btn btn-primary">Edit</a>
+                        </td>';
             $html .= '</tr>';
         }
     }
 
     echo json_encode([
-        'html' => $html
+        'html'          => $html,
+        'totalPrice'    => $totalPrice
     ]);
 }
 

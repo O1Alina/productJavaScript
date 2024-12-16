@@ -19,10 +19,10 @@ function dbProductConnection() {
 
 function dbCartConnection() {
     include_once 'databaseConnection.php'; 
-    $db = new \DB\DBConnection(); // Use namespace
-    $mysqli = $db->dbConnect();
+    $db          = new \DB\DBConnection(); // Use namespace
+    $mysqli      = $db->dbConnect();
     $productlist = []; // Initialize an array to store all cart items
-    $result = $mysqli->query("SELECT * FROM carts");
+    $result      = $mysqli->query("SELECT * FROM carts");
     if ($result) {
         while ($cart = $result->fetch_assoc()) { // Loop through each row in the result set
             $productSql = "SELECT * FROM products WHERE product_id = ?";
@@ -35,6 +35,7 @@ function dbCartConnection() {
             if ($productRow) {
                 // Add the product and cart details to the list
                 $productlist[] = [
+                    'id'            => $cart['id'],
                     'product_id'    => $productRow['product_id'],
                     'product_name'  => $productRow['product_name'],
                     'product_price' => $productRow['product_price'],
